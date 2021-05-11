@@ -64,6 +64,10 @@ exports.handler = async function(event) {
   // get the documents from the query
   let sections = sectionsQuery.docs
 
+  // define empty variables for # of reviews and cumulative rating for course
+  let numCourseReviews = 0
+  let sumCourseRating = 0
+
   // loop through the documents
   for (let i=0; i < sections.length; i++) {
     // get the document ID of the section
@@ -92,6 +96,10 @@ exports.handler = async function(event) {
     // get documents from the query
     let reviews = reviewsQuery.docs
 
+    // define empty variables for # of reviews and a aggregate sum of ratings
+    let numSecReviews = 0
+    let sumSecRating = 0
+
     // loop through the documents
     for (let reviewIndex = 0; reviewIndex < reviews.length; reviewIndex++) {
       
@@ -103,14 +111,33 @@ exports.handler = async function(event) {
 
       // add the review data to the sectionData
       sectionData.reviews.push(reviewData)
+
+      // increment the review count
+      numSecReviews = numSecReviews + 1
+
+      // incremenet cumulative sum for ratings
+      sumSecRating = sumSecRating + reviewData.rating
     }
 
-    console.log(sectionData)
+    // calculate # of reviews and average rating and add it to sectionData
+    sectionData.numReviews = numSecReviews
+    sectionData.avgRating = sumSecRating / numSecReviews
 
     // add the section data to the courseData
     courseData.sections.push(sectionData)
-  }
 
+    // increment number of course ratings
+    numCourseReviews = numCourseReviews + numSecReviews
+
+    // increment cumulative sum for ratings
+    sumCourseRating = sumCourseRating + sumSecRating
+
+    // calculate # of course reviews and average rating and add it to courseData
+    courseData.numReviews = numCourseReviews
+    courseData.avgRating = sumCourseRating / numCourseReviews
+
+  }
+  
   // return the standard response
   return {
     statusCode: 200,
