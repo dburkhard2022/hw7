@@ -81,10 +81,34 @@ exports.handler = async function(event) {
     // add the lecturer's name to the section's data
     sectionData.lecturerName = lecturer.name
 
+    // 🔥 your code for the reviews/ratings goes here
+
+    // set a new Array as part of the sectionData
+    sectionData.reviews = []
+
+    // ask firebase for the reviews for each section
+    let reviewsQuery = await db.collection(`reviews`).where(`sectionId`, `==`, sectionId).get()
+
+    // get documents from the query
+    let reviews = reviewsQuery.docs
+
+    // loop through the documents
+    for (let reviewIndex = 0; reviewIndex < reviews.length; reviewIndex++) {
+      
+      // get the document ID of the review
+      let reviewId = reviews[reviewIndex].id
+
+      // get the data from the review
+      let reviewData = reviews[reviewIndex].data()
+
+      // add the review data to the sectionData
+      sectionData.reviews.push(reviewData)
+    }
+
+    console.log(sectionData)
+
     // add the section data to the courseData
     courseData.sections.push(sectionData)
-
-    // 🔥 your code for the reviews/ratings goes here
   }
 
   // return the standard response
